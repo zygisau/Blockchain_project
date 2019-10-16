@@ -26,8 +26,14 @@ string generateRandomString(size_t len) {
 double generateRandomNumber(const int& from, const int& to) {
 	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
 	std::mt19937_64 rng(seed);
-	std::uniform_int_distribution<> random(from, to);
+	std::uniform_real_distribution<> random(from, to);
 	return random(rng);
+}
+
+void notifyAboutProgress(int& size, unsigned int progress, string&& message) {
+	if(progress % (size/4) == 0) {
+		cout << progress * 100 / size << "% " << message << " created" << endl;
+	}
 }
 
 void generateUsers(vector<User>& users) {
@@ -39,8 +45,8 @@ void generateUsers(vector<User>& users) {
 	if (streamConnected) {
 		nameStream >> name;
 	}
-
-	for (int i = 1; i <= 10000; i++) {
+	int size = 1000;
+	for (int i = 1; i <= size; i++) {
 		if (streamConnected) {
 			nameStream >> name;
 			name = name.substr(1, name.length() - 3);
@@ -52,16 +58,50 @@ void generateUsers(vector<User>& users) {
 //		User user(std::to_string(i), generateRandomString(5), generateRandomNumber(1, 1000)); // Or just use this
 		users.push_back(user);
 
-		if(i % 2500 == 0) {
-			cout << i / 100 << "% users created" << endl;
-		}
+		notifyAboutProgress(size, i, "users");
 	}
 
 	nameStream.close();
 	cout << "All users have been generated succesfully" <<  endl;
 }
 
-void generateTransactions(vector<Transaction>& transactions) {
+int iterateUserIndex(int& i, unsigned int size) {
+	return ++i >= size ? 0 : i;
+}
+
+void generateTransactions(vector<Transaction>& transactions, vector<User>& users) {
 	cout << "Generating transactions..." << endl;
-	
+	int size = 10000;
+	User* user1;
+	User* user2;
+
+	double amount;
+	bool repeat = true;
+	int times = 0;
+	int i = 0;
+	while (transactions.size() != size) {
+		user1 = &users[i];
+		i = iterateUserIndex(i, users.size());
+		user2 = &users[i];
+		amount = generateRandomNumber(10, 50);
+		do {
+			if (user1->getDebit() >= amount) {
+				transactions.emplace_back(user1, user2, amount);
+				repeat = false;
+			} else if (user2->getDebit() >= amount) {
+				transactions.emplace_back(user2, user1, amount);
+				repeat = false;
+			} else {
+				amount = generateRandomNumber((int)amount, 50);
+				times++;
+			}
+		} while(repeat && times < 3);
+
+		if(times >= 3) {
+			i++;
+		}
+
+		notifyAboutProgress(size, transactions.size(), "transactions");
+	}
+	cout << "All transactions have been generated succesfully" << endl;
 }

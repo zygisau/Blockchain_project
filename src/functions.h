@@ -10,6 +10,6 @@
 #include "classes/Transaction/Transaction.h"
 
 void generateUsers(vector<User>& users);
-void generateTransactions(vector<Transaction>& transactions);
+void generateTransactions(vector<Transaction>& transactions, vector<User>& users);
 
 #endif //BLOCKCHAIN_FUNCTIONS_H

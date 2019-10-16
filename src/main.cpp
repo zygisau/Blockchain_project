@@ -10,5 +10,6 @@ int main () {
 	vector<User> users;
 	generateUsers(users);
 	vector<Transaction> transactions;
-	generateTransactions()
+	generateTransactions(transactions, users);
+	
 }
