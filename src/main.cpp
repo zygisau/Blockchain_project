@@ -4,12 +4,23 @@
 
 #include "main.h"
 #include "functions.h"
+#include "classes/Blockchain/Blockchain.h"
 
 int main () {
 	cout << "Starting Bitcoin clone..." << endl;
 	vector<User> users;
 	generateUsers(users);
-	vector<Transaction> transactions;
-	generateTransactions(transactions, users);
-	
+	list<Transaction> transactionsPool;
+	generateTransactions(transactionsPool, users);
+	size_t poolSize = transactionsPool.size();
+
+	Blockchain blockchain;
+	blockchain.generateGenesisBlock(transactionsPool);
+	blockchain.generateBlocks(transactionsPool);
+
+	cout << "Number of users created: " << users.size() << endl;
+	cout << "Number of transactions created: " << poolSize << endl;
+	cout << "Number of blocks in the blockchain: " << blockchain.getBlockchainSize() << endl;
+	cout << "Number of transactions left in the pool: " << transactionsPool.size() << endl;
+	return 0;
 }

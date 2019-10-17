@@ -23,7 +23,13 @@ string generateRandomString(size_t len) {
 	return string(s);
 }
 
-double generateRandomNumber(const int& from, const int& to) {
+int generateRandomInteger(const int& from, const unsigned int& to) {
+	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+	std::mt19937_64 rng(seed);
+	std::uniform_int_distribution<> random(from, to);
+	return random(rng);
+}
+double generateRandomDouble(const int& from, const int& to) {
 	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
 	std::mt19937_64 rng(seed);
 	std::uniform_real_distribution<> random(from, to);
@@ -54,8 +60,8 @@ void generateUsers(vector<User>& users) {
 			name = generateRandomString(8);
 		}
 
-		User user(std::to_string(i), name, generateRandomNumber(1, 1000));
-//		User user(std::to_string(i), generateRandomString(5), generateRandomNumber(1, 1000)); // Or just use this
+		User user(std::to_string(i), name, generateRandomDouble(1, 1000));
+//		User user(std::to_string(i), generateRandomString(5), generateRandomDouble(1, 1000)); // Or just use this
 		users.push_back(user);
 
 		notifyAboutProgress(size, i, "users");
@@ -65,43 +71,90 @@ void generateUsers(vector<User>& users) {
 	cout << "All users have been generated succesfully" <<  endl;
 }
 
-int iterateUserIndex(int& i, unsigned int size) {
-	return ++i >= size ? 0 : i;
+int generateNextUserIndex(int& i, unsigned int size) {
+	int index = generateRandomInteger(0, size - 1);
+	while (i == index) {
+//		cout << index << endl;
+		index = generateRandomInteger(0, size - 1);
+	};
+//	cout << index << endl;
+	return index;
+
 }
 
-void generateTransactions(vector<Transaction>& transactions, vector<User>& users) {
+void applyTransaction(User* sender, User* receiver, double& amount) {
+	sender->setDebit(sender->getDebit() - amount);
+	receiver->setDebit(receiver->getDebit() + amount);
+}
+
+void generateTransactions(list<Transaction>& transactions, vector<User>& users) {
 	cout << "Generating transactions..." << endl;
 	int size = 10000;
 	User* user1;
 	User* user2;
 
 	double amount;
-	bool repeat = true;
+	bool repeat;
 	int times = 0;
-	int i = 0;
+	int i = generateRandomInteger(0, users.size() - 1);
 	while (transactions.size() != size) {
+		i = generateNextUserIndex(i, users.size() - 1);
 		user1 = &users[i];
-		i = iterateUserIndex(i, users.size());
+		i = generateNextUserIndex(i, users.size() - 1);
 		user2 = &users[i];
-		amount = generateRandomNumber(10, 50);
+		amount = generateRandomDouble(10, 50);
+		repeat = true;
+		times = 0;
 		do {
 			if (user1->getDebit() >= amount) {
+				applyTransaction(user1, user2, amount);
 				transactions.emplace_back(user1, user2, amount);
 				repeat = false;
 			} else if (user2->getDebit() >= amount) {
+				applyTransaction(user2, user1, amount);
 				transactions.emplace_back(user2, user1, amount);
 				repeat = false;
 			} else {
-				amount = generateRandomNumber((int)amount, 50);
+				amount = generateRandomDouble((int)amount, 50);
 				times++;
 			}
 		} while(repeat && times < 3);
 
-		if(times >= 3) {
-			i++;
-		}
-
 		notifyAboutProgress(size, transactions.size(), "transactions");
 	}
 	cout << "All transactions have been generated succesfully" << endl;
+}
+
+string hashBlock(Block &block) {
+	Header *blockHeader = block.getHeader();
+	string header;
+	if (blockHeader->getPrevBlock() != nullptr) {
+		header = *(blockHeader->getPrevBlock());
+	}
+	string input = header + blockHeader->getTimestamp() + std::to_string(blockHeader->getVersion()) +
+			std::to_string(blockHeader->getNonce()) + std::to_string(blockHeader->getDifficultyTarget()) +
+			blockHeader->getMerkleRoot();
+	return HASH_FUNC(input);
+}
+
+bool isHashValid(string& hash, int& difficulty) {
+	for(int i = 0; i < difficulty; i++) {
+		if (hash[i] != '0') {
+			return false;
+		}
+	}
+	return true;
+}
+
+template<typename RandomGenerator>
+list<Transaction>::iterator select_randomly(list<Transaction>::iterator start, list<Transaction>::iterator end, RandomGenerator& g) {
+	std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
+	std::advance(start, dis(g));
+	return start;
+}
+
+list<Transaction>::iterator select_randomly(list<Transaction>::iterator start, list<Transaction>::iterator end) {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	return select_randomly(start, end, gen);
 }

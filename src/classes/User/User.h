@@ -11,11 +11,13 @@ class User {
 private:
 	string id;
 	string name;
-	long double debit;
+	double debit;
 
 public:
-	User(string& id, string& name, long double& debit) : id(id), name(name), debit(debit) {}
-	User(string&& givenId, string& givenName, long double&& givenDebit) : id(givenId), name(givenName), debit(givenDebit) {}
+	User(string& id, string& name, double& debit) : id(id), name(name), debit(debit) {}
+	User(string&& givenId, string& givenName, double&& givenDebit) : id(givenId), name(givenName), debit(givenDebit) {}
+
+	void setDebit(const double newDebit) { debit = newDebit; }
 
 	string getId() {
 		return id;

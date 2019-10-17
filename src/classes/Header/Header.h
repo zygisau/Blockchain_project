@@ -6,11 +6,10 @@
 #define BLOCKCHAIN_HEADER_H
 
 #include "../../main.h"
-#include "../Block/Block.h"
 
 class Header {
 private:
-	int* prevBlock;
+	string *prevBlock;
 	string timestamp;
 	int version;
 	int nonce;
@@ -18,11 +17,33 @@ private:
 	string merkleTreeHash;
 
 public:
-	Header(int& prevBlock, int version, int nonce, int difficultyTarget) {
-		this->prevBlock = &prevBlock;
+	Header(string *prevBlock, int &version, int &nonce, int &difficultyTarget, string &merkleTreeHash) {
+		this->prevBlock = prevBlock;
 		this->version = version;
 		this->nonce = nonce;
 		this->difficultyTarget = difficultyTarget;
+		this->merkleTreeHash = merkleTreeHash;
+		this->timestamp = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch()).count());
+	}
+
+	string *getPrevBlock() {
+		return prevBlock;
+	}
+	string getTimestamp() {
+		return timestamp;
+	}
+	int getVersion() {
+		return version;
+	}
+	int getNonce() {
+		return nonce;
+	}
+	int getDifficultyTarget() {
+		return difficultyTarget;
+	}
+	string getMerkleRoot() {
+		return merkleTreeHash;
 	}
 };
 
