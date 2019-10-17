@@ -37,6 +37,7 @@ In order to run a program, follow these steps
 **Added**  
 
  - Simple blockchain structure
+ - Blockchain generation and mining scenario
  - Created README file
 
 [version-badge]: https://img.shields.io/badge/version-0.1.1-purple.svg
