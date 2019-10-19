@@ -31,7 +31,8 @@ private:
 		string blockHash = hashBlock(newBlock);
 		while (!isHashValid(blockHash, difficulty)) {
 			nonce++;
-			newBlock = Block(prevBlock, nextVersion++, nonce, difficulty, transactions);
+			newBlock.getHeader()->incNonce();
+			newBlock.getHeader()->setTimeout();
 			blockHash = hashBlock(newBlock);
 		}
 		newBlock.setHash(blockHash);

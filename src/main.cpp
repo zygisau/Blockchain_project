@@ -12,6 +12,7 @@ int main () {
 	generateUsers(users);
 	list<Transaction> transactionsPool;
 	generateTransactions(transactionsPool, users);
+
 	size_t poolSize = transactionsPool.size();
 
 	Blockchain blockchain;

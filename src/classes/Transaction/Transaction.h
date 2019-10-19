@@ -17,14 +17,10 @@ public:
 	Transaction(User* sender, User* receiver, double& amount) : sender(sender), receiver(receiver), amount(amount) {}
 
 	string getSenderStr() {
-		std::stringstream stringStream;
-		stringStream << this->sender->getId() << " " << this->sender->getName() << " " << this->sender->getDebit();
-		return stringStream.str();
+		return this->sender->getId();
 	}
 	string getReceiverStr() {
-		std::stringstream stringStream;
-		stringStream << this->receiver->getId() << " " << this->receiver->getName() << " " << this->receiver->getDebit();
-		return stringStream.str();
+		return this->receiver->getId();
 	}
 	double getAmount() { return amount; }
 

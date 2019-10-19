@@ -24,15 +24,15 @@ string generateRandomString(size_t len) {
 }
 
 int generateRandomInteger(const int& from, const unsigned int& to) {
-	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-	std::mt19937_64 rng(seed);
+	static std::random_device rd;
+	static std::mt19937 rng(rd());
 	std::uniform_int_distribution<> random(from, to);
 	return random(rng);
 }
 double generateRandomDouble(const int& from, const int& to) {
-	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-	std::mt19937_64 rng(seed);
-	std::uniform_real_distribution<> random(from, to);
+	static std::random_device rd;
+	static std::mt19937 rng(rd());
+	std::uniform_int_distribution<> random(from, to);
 	return random(rng);
 }
 
@@ -74,10 +74,8 @@ void generateUsers(vector<User>& users) {
 int generateNextUserIndex(int& i, unsigned int size) {
 	int index = generateRandomInteger(0, size - 1);
 	while (i == index) {
-//		cout << index << endl;
 		index = generateRandomInteger(0, size - 1);
-	};
-//	cout << index << endl;
+	}
 	return index;
 
 }
@@ -96,9 +94,9 @@ void generateTransactions(list<Transaction>& transactions, vector<User>& users) 
 	double amount;
 	bool repeat;
 	int times = 0;
-	int i = generateRandomInteger(0, users.size() - 1);
+	int i;
 	while (transactions.size() != size) {
-		i = generateNextUserIndex(i, users.size() - 1);
+		i = generateRandomInteger(0, users.size() - 1);
 		user1 = &users[i];
 		i = generateNextUserIndex(i, users.size() - 1);
 		user2 = &users[i];
@@ -149,7 +147,8 @@ bool isHashValid(string& hash, int& difficulty) {
 template<typename RandomGenerator>
 list<Transaction>::iterator select_randomly(list<Transaction>::iterator start, list<Transaction>::iterator end, RandomGenerator& g) {
 	std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
-	std::advance(start, dis(g));
+	auto distance = dis(g);
+	std::advance(start, distance);
 	return start;
 }
 
