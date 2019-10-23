@@ -13,7 +13,7 @@ private:
 	list<Block> blocks;
 	int nextVersion = 0;
 	int sizeOfTransactionsInBlock = 100;
-	int difficulty = 1;
+	int difficulty = 4;
 
 	list<Transaction> pickTransactions(list<Transaction>& transPool) {
 		list<Transaction> pickedTransactions;
@@ -31,7 +31,8 @@ private:
 		string blockHash = hashBlock(newBlock);
 		while (!isHashValid(blockHash, difficulty)) {
 			nonce++;
-			newBlock = Block(prevBlock, nextVersion++, nonce, difficulty, transactions);
+			newBlock.getHeader()->incNonce();
+			newBlock.getHeader()->setTimeout();
 			blockHash = hashBlock(newBlock);
 		}
 		newBlock.setHash(blockHash);
@@ -49,8 +50,9 @@ public:
 	}
 
 	void generateBlocks(list<Transaction>& transPool) {
+		int counter = 0;
 		while (!transPool.empty()) {
-			cout << "Next block" << endl;
+			cout << ++counter << " Next block" << endl;
 			cout << "Picking transactions from the pool" << endl;
 			list<Transaction> transactions = pickTransactions(transPool);
 			cout << "Mining" << endl;

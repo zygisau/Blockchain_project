@@ -10,26 +10,36 @@
 
 class Transaction {
 private:
+	string id;
 	User* sender;
 	User* receiver;
 	double amount;
 public:
-	Transaction(User* sender, User* receiver, double& amount) : sender(sender), receiver(receiver), amount(amount) {}
-
-	string getSenderStr() {
-		std::stringstream stringStream;
-		stringStream << this->sender->getId() << " " << this->sender->getName() << " " << this->sender->getDebit();
-		return stringStream.str();
+	Transaction(User* sender, User* receiver, double& amount) : sender(sender), receiver(receiver), amount(amount) {
+		id = HASH_FUNC(getSenderId() + getReceiverId() + std::to_string(getAmount()));
 	}
-	string getReceiverStr() {
-		std::stringstream stringStream;
-		stringStream << this->receiver->getId() << " " << this->receiver->getName() << " " << this->receiver->getDebit();
-		return stringStream.str();
+
+	string getSenderId() {
+		return this->sender->getId();
+	}
+	string getReceiverId() {
+		return this->receiver->getId();
 	}
 	double getAmount() { return amount; }
 
 	string toString() {
-		return getSenderStr() + " " + getReceiverStr() + " " + std::to_string(getAmount());
+		return getSenderId() + " " + getReceiverId() + " " + std::to_string(getAmount());
+	}
+
+	bool validateId (const string& inputHash) {
+		return inputHash == id;
+	}
+
+	User* getSender() {
+		return sender;
+	}
+	User* getReceiver() {
+		return receiver;
 	}
 };
 

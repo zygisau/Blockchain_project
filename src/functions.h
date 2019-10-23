@@ -12,13 +12,14 @@
 
 string generateRandomString(size_t len);
 int generateRandomInteger(const int& from, const unsigned int& to);
-double generateRandomDouble(const int& from, const int& to);
+double generateRandomDouble(const double& from, const double& to);
 void notifyAboutProgress(int& size, unsigned int progress, string&& message);
 void generateUsers(vector<User>& users);
 int generateNextUserIndex(int& i, unsigned int size);
 void generateTransactions(list<Transaction>& transactions, vector<User>& users);
 string hashBlock(Block &block);
 bool isHashValid(string& hash, int& difficulty);
+void validateTransactions(list<Transaction>& transactions);
 
 // https://stackoverflow.com/a/16421677
 template<typename RandomGenerator>

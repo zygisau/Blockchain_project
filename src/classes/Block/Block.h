@@ -15,9 +15,54 @@ private:
 	Header *header;
 	list<Transaction> transactions;
 
+	string static findRoot(vector<string>& output) {
+		vector<string> results;
+		string concat;
+
+		vector<string>::iterator nextIt;
+		for (auto it = output.begin(); it < output.end(); it += 2) {
+			nextIt = it + 1;
+			if (nextIt != output.end()) {
+				concat = HASH_FUNC(*it) + HASH_FUNC(*nextIt);
+			} else {
+				concat = HASH_FUNC(*it) + HASH_FUNC(*it);
+			}
+			results.push_back(concat);
+		}
+
+		if (results.size() == 1) {
+			return results.front();
+		}
+		return findRoot(results);
+	}
+
+	// generates Merkle Abstract Syntax Tree
+	string static genMAST(list<Transaction> &transactions) {
+		vector<string> results;
+		string concat;
+
+		list<Transaction>::iterator nextIt;
+		for (auto it = transactions.begin(); it != transactions.end(); it = std::next(it)) {
+			nextIt = std::next(it);
+			if (nextIt != --transactions.end() || nextIt != transactions.end()) {
+				concat = HASH_FUNC(it->toString()) + HASH_FUNC(nextIt->toString());
+			} else {
+				concat = HASH_FUNC(it->toString()) + HASH_FUNC(it->toString());
+				results.push_back(concat);
+				break;
+			}
+			results.push_back(concat);
+			it = std::next(it);
+		}
+
+		if (results.size() == 1) {
+			return results.front();
+		}
+		return findRoot(results);
+	}
 public:
 	Block(string *prevBlock, int version, int nonce, int difficultyTarget, list<Transaction> &transactions) {
-		string merkleTreeHash = merkelize(transactions);
+		string merkleTreeHash = genMAST(transactions);
 		header = new Header(prevBlock, version, nonce, difficultyTarget, merkleTreeHash);
 		this->transactions = transactions;
 	}
