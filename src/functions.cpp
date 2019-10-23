@@ -6,7 +6,7 @@
 
 string generateRandomString(size_t len) {
 	char *s = new char[len];
-	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+	long unsigned int seed = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 	std::mt19937_64 rng(seed);
 	std::uniform_int_distribution<> random(1, 10);
 
@@ -24,14 +24,15 @@ string generateRandomString(size_t len) {
 }
 
 int generateRandomInteger(const int& from, const unsigned int& to) {
-	static std::random_device rd;
-	static std::mt19937 rng(rd());
+	long unsigned int seed = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+	static std::mt19937 rng(seed);
 	std::uniform_int_distribution<> random(from, to);
 	return random(rng);
 }
+
 double generateRandomDouble(const int& from, const int& to) {
-	static std::random_device rd;
-	static std::mt19937 rng(rd());
+	long unsigned int seed = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+	static std::mt19937 rng(seed);
 	std::uniform_int_distribution<> random(from, to);
 	return random(rng);
 }
@@ -60,7 +61,7 @@ void generateUsers(vector<User>& users) {
 			name = generateRandomString(8);
 		}
 
-		User user(std::to_string(i), name, generateRandomDouble(1, 1000));
+		User user(std::to_string(i), name, generateRandomDouble(1, 100));
 //		User user(std::to_string(i), generateRandomString(5), generateRandomDouble(1, 1000)); // Or just use this
 		users.push_back(user);
 
@@ -92,8 +93,6 @@ void generateTransactions(list<Transaction>& transactions, vector<User>& users) 
 	User* user2;
 
 	double amount;
-	bool repeat;
-	int times = 0;
 	int i;
 	while (transactions.size() != size) {
 		i = generateRandomInteger(0, users.size() - 1);
@@ -101,23 +100,9 @@ void generateTransactions(list<Transaction>& transactions, vector<User>& users) 
 		i = generateNextUserIndex(i, users.size() - 1);
 		user2 = &users[i];
 		amount = generateRandomDouble(10, 50);
-		repeat = true;
-		times = 0;
-		do {
-			if (user1->getDebit() >= amount) {
-				applyTransaction(user1, user2, amount);
-				transactions.emplace_back(user1, user2, amount);
-				repeat = false;
-			} else if (user2->getDebit() >= amount) {
-				applyTransaction(user2, user1, amount);
-				transactions.emplace_back(user2, user1, amount);
-				repeat = false;
-			} else {
-				amount = generateRandomDouble((int)amount, 50);
-				times++;
-			}
-		} while(repeat && times < 3);
 
+		applyTransaction(user1, user2, amount);
+		transactions.emplace_back(user1, user2, amount);
 		notifyAboutProgress(size, transactions.size(), "transactions");
 	}
 	cout << "All transactions have been generated succesfully" << endl;
@@ -153,7 +138,17 @@ list<Transaction>::iterator select_randomly(list<Transaction>::iterator start, l
 }
 
 list<Transaction>::iterator select_randomly(list<Transaction>::iterator start, list<Transaction>::iterator end) {
-	static std::random_device rd;
-	static std::mt19937 gen(rd());
+	long unsigned int seed = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+	static std::mt19937 gen(seed);
 	return select_randomly(start, end, gen);
+}
+
+void validateTransactions(list<Transaction>& transactions) {
+	transactions.erase(std::remove_if(transactions.begin(), transactions.end(),
+									  [](Transaction &t) {
+										  return (t.getSender()->getDebit() < t.getAmount())
+												 || !t.validateId(HASH_FUNC(
+												  t.getSenderId() + t.getReceiverId() + std::to_string(t.getAmount())));
+									  }
+	), transactions.end());
 }

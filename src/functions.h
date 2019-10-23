@@ -11,7 +11,7 @@
 #include "classes/Transaction/Transaction.h"
 
 string generateRandomString(size_t len);
-int generateRandomInteger(const int& from, const unsigned int& to);
+int generateRandomInteger(const int& from, const int& to);
 double generateRandomDouble(const int& from, const int& to);
 void notifyAboutProgress(int& size, unsigned int progress, string&& message);
 void generateUsers(vector<User>& users);
@@ -24,5 +24,7 @@ bool isHashValid(string& hash, int& difficulty);
 template<typename RandomGenerator>
 list<Transaction>::iterator select_randomly(list<Transaction>::iterator start, list<Transaction>::iterator end, RandomGenerator& g);
 list<Transaction>::iterator select_randomly(list<Transaction>::iterator start, list<Transaction>::iterator end);
+
+void validateTransactions(list<Transaction>& transactions);
 
 #endif //BLOCKCHAIN_FUNCTIONS_H

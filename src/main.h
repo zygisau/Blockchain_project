@@ -15,9 +15,10 @@
 #include <sstream>
 #include <list>
 #include <algorithm>
-#include  <iterator>
+#include <iterator>
+#include <functional>
 using std::string; using std::vector; using std::cout; using std::endl; using std::ifstream;
-using std::unique_ptr; using std::list;
+using std::unique_ptr; using std::shared_ptr; using std::weak_ptr; using std::list;
 
 #include "../vendors/SHA-256/sha256.h"
 const auto HASH_FUNC = sha256;
