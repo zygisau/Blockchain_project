@@ -42,15 +42,17 @@ private:
 		string concat;
 
 		list<Transaction>::iterator nextIt;
-		for (auto it = transactions.begin(); it != transactions.end(); it++) {
+		for (auto it = transactions.begin(); it != transactions.end(); it = std::next(it)) {
 			nextIt = std::next(it);
-			if (nextIt != transactions.end()) {
+			if (nextIt != --transactions.end() || nextIt != transactions.end()) {
 				concat = HASH_FUNC(it->toString()) + HASH_FUNC(nextIt->toString());
 			} else {
 				concat = HASH_FUNC(it->toString()) + HASH_FUNC(it->toString());
+				results.push_back(concat);
+				break;
 			}
 			results.push_back(concat);
-			it++;
+			it = std::next(it);
 		}
 
 		if (results.size() == 1) {

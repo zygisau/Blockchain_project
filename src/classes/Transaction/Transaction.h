@@ -28,19 +28,19 @@ public:
 	}
 	double getAmount() { return amount; }
 
-	User* getSender() {
-		return sender;
-	}
-	User* getReceiver() {
-		return receiver;
-	}
-
 	string toString() {
 		return getSenderId() + " " + getReceiverId() + " " + std::to_string(getAmount());
 	}
 
 	bool validateId (const string& inputHash) {
 		return inputHash == id;
+	}
+
+	User* getSender() {
+		return sender;
+	}
+	User* getReceiver() {
+		return receiver;
 	}
 };
 

@@ -11,20 +11,19 @@
 #include "classes/Transaction/Transaction.h"
 
 string generateRandomString(size_t len);
-int generateRandomInteger(const int& from, const int& to);
-double generateRandomDouble(const int& from, const int& to);
+int generateRandomInteger(const int& from, const unsigned int& to);
+double generateRandomDouble(const double& from, const double& to);
 void notifyAboutProgress(int& size, unsigned int progress, string&& message);
 void generateUsers(vector<User>& users);
 int generateNextUserIndex(int& i, unsigned int size);
 void generateTransactions(list<Transaction>& transactions, vector<User>& users);
 string hashBlock(Block &block);
 bool isHashValid(string& hash, int& difficulty);
+void validateTransactions(list<Transaction>& transactions);
 
 // https://stackoverflow.com/a/16421677
 template<typename RandomGenerator>
 list<Transaction>::iterator select_randomly(list<Transaction>::iterator start, list<Transaction>::iterator end, RandomGenerator& g);
 list<Transaction>::iterator select_randomly(list<Transaction>::iterator start, list<Transaction>::iterator end);
-
-void validateTransactions(list<Transaction>& transactions);
 
 #endif //BLOCKCHAIN_FUNCTIONS_H

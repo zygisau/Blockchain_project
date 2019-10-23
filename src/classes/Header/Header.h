@@ -53,6 +53,13 @@ public:
 	string getMerkleRoot() {
 		return merkleTreeHash;
 	}
+	void setTimeout() {
+		timestamp = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch()).count());
+	}
+	void incNonce() {
+		nonce++;
+	}
 };
 
 

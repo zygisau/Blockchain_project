@@ -29,11 +29,10 @@ int generateRandomInteger(const int& from, const unsigned int& to) {
 	std::uniform_int_distribution<> random(from, to);
 	return random(rng);
 }
-
-double generateRandomDouble(const int& from, const int& to) {
+double generateRandomDouble(const double& from, const double& to) {
 	long unsigned int seed = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 	static std::mt19937 rng(seed);
-	std::uniform_int_distribution<> random(from, to);
+	std::uniform_real_distribution<double> random(from, to);
 	return random(rng);
 }
 
@@ -99,10 +98,11 @@ void generateTransactions(list<Transaction>& transactions, vector<User>& users) 
 		user1 = &users[i];
 		i = generateNextUserIndex(i, users.size() - 1);
 		user2 = &users[i];
-		amount = generateRandomDouble(10, 50);
+		amount = generateRandomDouble(10.00, 100.00);
 
 		applyTransaction(user1, user2, amount);
 		transactions.emplace_back(user1, user2, amount);
+
 		notifyAboutProgress(size, transactions.size(), "transactions");
 	}
 	cout << "All transactions have been generated succesfully" << endl;
@@ -132,8 +132,7 @@ bool isHashValid(string& hash, int& difficulty) {
 template<typename RandomGenerator>
 list<Transaction>::iterator select_randomly(list<Transaction>::iterator start, list<Transaction>::iterator end, RandomGenerator& g) {
 	std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
-	auto distance = dis(g);
-	std::advance(start, distance);
+	std::advance(start, dis(g));
 	return start;
 }
 

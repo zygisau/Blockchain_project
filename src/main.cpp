@@ -12,10 +12,7 @@ int main () {
 	generateUsers(users);
 	list<Transaction> transactionsPool;
 	generateTransactions(transactionsPool, users);
-//	cout << transactionsPool.size() << endl;
 	validateTransactions(transactionsPool);
-//	cout << transactionsPool.size() << endl;
-
 	size_t poolSize = transactionsPool.size();
 
 	Blockchain blockchain;

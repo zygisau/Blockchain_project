@@ -52,7 +52,7 @@ public:
 	void generateBlocks(list<Transaction>& transPool) {
 		int counter = 0;
 		while (!transPool.empty()) {
-			cout << ++counter << "Next block" << endl;
+			cout << ++counter << " Next block" << endl;
 			cout << "Picking transactions from the pool" << endl;
 			list<Transaction> transactions = pickTransactions(transPool);
 			cout << "Mining" << endl;
