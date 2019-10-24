@@ -50,7 +50,7 @@ public:
 	}
 
 	void generateBlocks(list<Transaction>& transPool) {
-		int counter = 0;
+		int counter = 1; // first one is genesis block
 		while (!transPool.empty()) {
 			cout << ++counter << " Next block" << endl;
 			cout << "Picking transactions from the pool" << endl;
