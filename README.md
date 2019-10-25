@@ -11,10 +11,24 @@ Currency: (っ◔◡◔)っ ♥ NNT ♥ (No Name Yet)
 This implementation provides a quick example how a basic blockchain could work. There are several tasks this can do at the moment:
 - Generate specific number of users
 - Generate transactions between those users
+- Validates them from evil third parties that might change transaction details while it transfers to the transaction pool
+- Validates if sender has enough funds to proceed
 - Mine genesis block
 - Mine other blocks till there is no transaction in the pool
+- Imitates P2P network
 
 > Notes: There is a possibility to use one of the two provided hash algorithms. One of them is created by me - [ŽA-256]( https://github.com/zygisau/ZA-256 ). The other one is highly popular C++ implementation of [SHA-256](http://www.zedwood.com/article/cpp-sha256-function) by zedwood.com
+
+## Silly P2P network imitation
+
+Implementation is pretty simple
+
+- Program creates 5 blocks.
+- Takes a random block and tries to mine it.
+- If succeeded, creates a new block and repeats the point above.
+- If it fails to mine the block for a certain time of attempts, a new block is chosen.
+- If all blocks were tried and failed to mine, the count of attempts is increased by 20 attempts.
+- Algorithm continues to run till all transactions are distributed through blocks.
 
 ## Installation
 
@@ -29,8 +43,17 @@ In order to run a program, follow these steps
 
 
 
-
 ## Changelog
+
+### [v0.2](https://github.com/zygisau/Blockchain_project/releases/tag/0.2) - (2019-10-25)  
+
+**Added**  
+ - Transactions validation
+ - P2P network imitation
+
+**Changed**
+ - Updated README file
+
 
 ### [v0.1](https://github.com/zygisau/Blockchain_project/releases/tag/0.1) - (2019-10-18)  
 
@@ -40,4 +63,4 @@ In order to run a program, follow these steps
  - Blockchain generation and mining scenario
  - Created README file
 
-[version-badge]: https://img.shields.io/badge/version-0.1-purple.svg
+[version-badge]: https://img.shields.io/badge/version-0.2-purple.svg
