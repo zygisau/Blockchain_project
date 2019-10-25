@@ -42,9 +42,10 @@ private:
 		string concat;
 
 		list<Transaction>::iterator nextIt;
-		for (auto it = transactions.begin(); it != transactions.end(); it = std::next(it)) {
+		int reverseCount = transactions.size();
+		for (auto it = transactions.begin(); it != transactions.end() && reverseCount > 0; ++it) {
 			nextIt = std::next(it);
-			if (nextIt != --transactions.end() || nextIt != transactions.end()) {
+			if (reverseCount != 1) {
 				concat = HASH_FUNC(it->toString()) + HASH_FUNC(nextIt->toString());
 			} else {
 				concat = HASH_FUNC(it->toString()) + HASH_FUNC(it->toString());
@@ -53,6 +54,7 @@ private:
 			}
 			results.push_back(concat);
 			it = std::next(it);
+			reverseCount -= 2;
 		}
 
 		if (results.size() == 1) {

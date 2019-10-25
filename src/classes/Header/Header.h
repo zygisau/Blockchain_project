@@ -34,7 +34,12 @@ public:
 	void incNonce() {
 		nonce++;
 	}
-
+	void setVersion(int newVersion) {
+		version = newVersion;
+	}
+	void setPreviousHash(string* prevHash) {
+		prevBlock = prevHash;
+	}
 	string *getPrevBlock() {
 		return prevBlock;
 	}

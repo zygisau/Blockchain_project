@@ -129,14 +129,52 @@ bool isHashValid(string& hash, int& difficulty) {
 	return true;
 }
 
+// TODO: Make template functions
+//template<typename RandomGenerator, template <class...> class T, class C>
+//typename T<C>::iterator select_randomly(typename T<C>::iterator start, typename T<C>::iterator end, RandomGenerator& g) {
+//	std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
+//	std::advance(start, dis(g));
+//	return start;
+//}
+//
+//template<template <class...> class T, class C>
+//typename T<C>::iterator select_randomly(typename T<C>::iterator  start, typename T<C>::iterator  end) {
+//	long unsigned int seed = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+//	static std::mt19937 gen(seed);
+//	return select_randomly(start, end, gen);
+//}
+
 template<typename RandomGenerator>
 list<Transaction>::iterator select_randomly(list<Transaction>::iterator start, list<Transaction>::iterator end, RandomGenerator& g) {
 	std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
 	std::advance(start, dis(g));
 	return start;
 }
-
 list<Transaction>::iterator select_randomly(list<Transaction>::iterator start, list<Transaction>::iterator end) {
+	long unsigned int seed = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+	static std::mt19937 gen(seed);
+	return select_randomly(start, end, gen);
+}
+
+template<typename RandomGenerator>
+vector<Transaction>::iterator select_randomly(vector<Transaction>::iterator start, vector<Transaction>::iterator end, RandomGenerator& g) {
+	std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
+	std::advance(start, dis(g));
+	return start;
+}
+vector<Transaction>::iterator select_randomly(vector<Transaction>::iterator start, vector<Transaction>::iterator end) {
+	long unsigned int seed = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+	static std::mt19937 gen(seed);
+	return select_randomly(start, end, gen);
+}
+
+template<typename RandomGenerator>
+vector<Block>::iterator select_randomly(vector<Block>::iterator start, vector<Block>::iterator end, RandomGenerator& g) {
+	std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
+	std::advance(start, dis(g));
+	return start;
+}
+vector<Block>::iterator select_randomly(vector<Block>::iterator start, vector<Block>::iterator end) {
 	long unsigned int seed = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 	static std::mt19937 gen(seed);
 	return select_randomly(start, end, gen);
@@ -150,4 +188,50 @@ void validateTransactions(list<Transaction>& transactions) {
 												  t.getSenderId() + t.getReceiverId() + std::to_string(t.getAmount())));
 									  }
 	), transactions.end());
+}
+
+bool compareAddresses(const list<Transaction>::iterator lhs, const list<Transaction>::iterator rhs) {
+	return &lhs > &rhs;
+}
+
+vector<list<Transaction>> generateFiveTransactionPacks(list<Transaction>& transPool, int numberOfTransInList) {
+	list<list<Transaction>::iterator> pickedTransactions;
+	list<list<Transaction>::iterator>::iterator it;
+
+	list<Transaction> transPack1;
+	list<Transaction> transPack2;
+	list<Transaction> transPack3;
+	list<Transaction> transPack4;
+	list<Transaction> transPack5;
+	for (int i = 0; i < numberOfTransInList; i++) {
+		pickedTransactions.push_back(select_randomly(transPool.begin(), transPool.end()));
+		pickedTransactions.push_back(select_randomly(transPool.begin(), transPool.end()));
+		pickedTransactions.push_back(select_randomly(transPool.begin(), transPool.end()));
+		pickedTransactions.push_back(select_randomly(transPool.begin(), transPool.end()));
+		pickedTransactions.push_back(select_randomly(transPool.begin(), transPool.end()));
+		it = pickedTransactions.begin();
+
+		transPack1.push_back(**it);
+		transPack2.push_back(**(++it));
+		transPack3.push_back(**(++it));
+		transPack4.push_back(**(++it));
+		transPack5.push_back(**(++it));
+
+		pickedTransactions.sort(compareAddresses);
+		pickedTransactions.unique();
+		for (auto& iterator: pickedTransactions) {
+			transPool.erase(iterator);
+		}
+		pickedTransactions.clear();
+	}
+
+	return vector<list<Transaction>> {transPack1, transPack2, transPack3, transPack4, transPack5};
+}
+
+vector<Block>::iterator selectRemainingBlock(vector<vector<Block>::iterator>& usedBlocks, vector<Block>& blockPool) {
+	auto blockIt = select_randomly(blockPool.begin(), blockPool.end());
+	while(std::find(usedBlocks.begin(), usedBlocks.end(), blockIt) != usedBlocks.end()) {
+		blockIt = select_randomly(blockPool.begin(), blockPool.end());
+	}
+	return blockIt;
 }

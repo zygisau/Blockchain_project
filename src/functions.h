@@ -25,5 +25,14 @@ void validateTransactions(list<Transaction>& transactions);
 template<typename RandomGenerator>
 list<Transaction>::iterator select_randomly(list<Transaction>::iterator start, list<Transaction>::iterator end, RandomGenerator& g);
 list<Transaction>::iterator select_randomly(list<Transaction>::iterator start, list<Transaction>::iterator end);
+template<typename RandomGenerator>
+vector<Transaction>::iterator select_randomly(vector<Transaction>::iterator start, vector<Transaction>::iterator end, RandomGenerator& g);
+vector<Transaction>::iterator select_randomly(vector<Transaction>::iterator start, vector<Transaction>::iterator end);
+template<typename RandomGenerator>
+vector<Block>::iterator select_randomly(vector<Block>::iterator start, vector<Block>::iterator end, RandomGenerator& g);
+vector<Block>::iterator select_randomly(vector<Block>::iterator start, vector<Block>::iterator end);
+
+vector<list<Transaction>> generateFiveTransactionPacks (list<Transaction>& transPool, int numberOfTransInList);
+vector<Block>::iterator selectRemainingBlock(vector<vector<Block>::iterator>& usedBlocks, vector<Block>& blockPool);
 
 #endif //BLOCKCHAIN_FUNCTIONS_H
