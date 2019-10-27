@@ -34,5 +34,7 @@ vector<Block>::iterator select_randomly(vector<Block>::iterator start, vector<Bl
 
 vector<list<Transaction>> generateFiveTransactionPacks (list<Transaction>& transPool, int numberOfTransInList);
 vector<Block>::iterator selectRemainingBlock(vector<vector<Block>::iterator>& usedBlocks, vector<Block>& blockPool);
+void moveUnusedTransToPool(vector<Block>::iterator blockIt, vector<Block>& blockPool, list<Transaction>& transPool);
+vector<Block> generateBlockPool(list<Transaction>& transPool, int& nextVersion, int& difficulty, int& sizeOfTransactionsInBlock, Block& lastBlock);
 
 #endif //BLOCKCHAIN_FUNCTIONS_H

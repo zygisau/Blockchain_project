@@ -80,7 +80,7 @@ int generateNextUserIndex(int& i, unsigned int size) {
 
 }
 
-void applyTransaction(User* sender, User* receiver, double& amount) {
+void applyTransaction(User* sender, User* receiver, double amount) {
 	sender->setDebit(sender->getDebit() - amount);
 	receiver->setDebit(receiver->getDebit() + amount);
 }
@@ -93,15 +93,16 @@ void generateTransactions(list<Transaction>& transactions, vector<User>& users) 
 
 	double amount;
 	int i;
+	long long nonceForTrans = 0;
 	while (transactions.size() != size) {
 		i = generateRandomInteger(0, users.size() - 1);
 		user1 = &users[i];
 		i = generateNextUserIndex(i, users.size() - 1);
 		user2 = &users[i];
-		amount = generateRandomDouble(10.00, 100.00);
+		amount = generateRandomDouble(100.00, 1000.00);
 
-		applyTransaction(user1, user2, amount);
-		transactions.emplace_back(user1, user2, amount);
+		transactions.emplace_back(user1, user2, amount, nonceForTrans);
+		nonceForTrans++;
 
 		notifyAboutProgress(size, transactions.size(), "transactions");
 	}
@@ -181,50 +182,108 @@ vector<Block>::iterator select_randomly(vector<Block>::iterator start, vector<Bl
 }
 
 void validateTransactions(list<Transaction>& transactions) {
+	cout << transactions.size() << endl << endl;
 	transactions.erase(std::remove_if(transactions.begin(), transactions.end(),
-									  [](Transaction &t) {
-										  return (t.getSender()->getDebit() < t.getAmount())
-												 || !t.validateId(HASH_FUNC(
-												  t.getSenderId() + t.getReceiverId() + std::to_string(t.getAmount())));
+			[](Transaction &t) {
+				bool isValid = t.getSender()->getDebit() < t.getAmount()
+							   && t.validateId(HASH_FUNC(t.getSenderId() + t.getReceiverId() + std::to_string(t.getAmount()) + std::to_string(t.getNonce())));
+				if (isValid) {
+					applyTransaction(t.getSender(), t.getReceiver(), t.getAmount());
+				}
+				return !isValid;
 									  }
 	), transactions.end());
 }
 
-bool compareAddresses(const list<Transaction>::iterator lhs, const list<Transaction>::iterator rhs) {
-	return &lhs > &rhs;
+bool compareTransactionsIterators(const list<Transaction>::iterator lhs, const list<Transaction>::iterator rhs) {
+	return lhs->getNonce() > rhs->getNonce();
+}
+
+bool compareTransactions(const Transaction& lhs, const Transaction& rhs) {
+	return lhs.getNonce() > rhs.getNonce();
+}
+
+list<Transaction>::iterator findUniqueIt(unordered_map<string, list<Transaction>::iterator>& transactionHTable, list<Transaction>& transactions) {
+	auto randomTransIt = select_randomly(transactions.begin(), transactions.end());
+	while(transactionHTable.find(randomTransIt->getTransactionId()) != transactionHTable.end()) {
+		randomTransIt = select_randomly(transactions.begin(), transactions.end());
+	}
+	return randomTransIt;
 }
 
 vector<list<Transaction>> generateFiveTransactionPacks(list<Transaction>& transPool, int numberOfTransInList) {
 	list<list<Transaction>::iterator> pickedTransactions;
-	list<list<Transaction>::iterator>::iterator it;
+//	list<list<Transaction>::iterator>::iterator it;
 
-	list<Transaction> transPack1;
-	list<Transaction> transPack2;
-	list<Transaction> transPack3;
-	list<Transaction> transPack4;
-	list<Transaction> transPack5;
-	for (int i = 0; i < numberOfTransInList; i++) {
-		pickedTransactions.push_back(select_randomly(transPool.begin(), transPool.end()));
-		pickedTransactions.push_back(select_randomly(transPool.begin(), transPool.end()));
-		pickedTransactions.push_back(select_randomly(transPool.begin(), transPool.end()));
-		pickedTransactions.push_back(select_randomly(transPool.begin(), transPool.end()));
-		pickedTransactions.push_back(select_randomly(transPool.begin(), transPool.end()));
-		it = pickedTransactions.begin();
+	unordered_map<string, list<Transaction>::iterator> transactionsHash1{};
+	unordered_map<string, list<Transaction>::iterator> transactionsHash2{};
+	unordered_map<string, list<Transaction>::iterator> transactionsHash3{};
+	unordered_map<string, list<Transaction>::iterator> transactionsHash4{};
+	unordered_map<string, list<Transaction>::iterator> transactionsHash5{};
+	list<Transaction> transPack1{};
+	list<Transaction> transPack2{};
+	list<Transaction> transPack3{};
+	list<Transaction> transPack4{};
+	list<Transaction> transPack5{};
+//	for (int i = 0; i < numberOfTransInList && !transPool.empty(); i++) {
+//		pickedTransactions.push_back(select_randomly(transPool.begin(), transPool.end()));
+//		pickedTransactions.push_back(select_randomly(transPool.begin(), transPool.end()));
+//		pickedTransactions.push_back(select_randomly(transPool.begin(), transPool.end()));
+//		pickedTransactions.push_back(select_randomly(transPool.begin(), transPool.end()));
+//		pickedTransactions.push_back(select_randomly(transPool.begin(), transPool.end()));
+//		it = pickedTransactions.begin();
+//
+//		transPack1.push_back(**it);
+//		transPack2.push_back(**(++it));
+//		transPack3.push_back(**(++it));
+//		transPack4.push_back(**(++it));
+//		transPack5.push_back(**(++it));
+//
+//		pickedTransactions.sort(compareTransactionsIterators);
+//		pickedTransactions.unique();
+//		for (auto & iter : pickedTransactions) {
+//			cout << (*iter).toString() << endl;
+//			transPool.erase(iter);
+//		}
+//		pickedTransactions.clear();
+//	}
 
-		transPack1.push_back(**it);
-		transPack2.push_back(**(++it));
-		transPack3.push_back(**(++it));
-		transPack4.push_back(**(++it));
-		transPack5.push_back(**(++it));
+	list<Transaction>::iterator randomTrans;
+	string key;
+	for (int i = 0; i < numberOfTransInList && i < transPool.size(); i++) {
+		randomTrans = findUniqueIt(transactionsHash1, transPool);
+		transactionsHash1.insert(make_pair(randomTrans->getTransactionId(), randomTrans));
+		transPack1.push_back(*randomTrans);
+		pickedTransactions.push_back(randomTrans);
 
-		pickedTransactions.sort(compareAddresses);
-		pickedTransactions.unique();
-		for (auto& iterator: pickedTransactions) {
-			transPool.erase(iterator);
-		}
-		pickedTransactions.clear();
+		randomTrans = findUniqueIt(transactionsHash2, transPool);
+		transactionsHash2.insert(make_pair(randomTrans->getTransactionId(), randomTrans));
+		transPack2.push_back(*randomTrans);
+		pickedTransactions.push_back(randomTrans);
+
+		randomTrans = findUniqueIt(transactionsHash3, transPool);
+		transactionsHash3.insert(make_pair(randomTrans->getTransactionId(), randomTrans));
+		transPack3.push_back(*randomTrans);
+		pickedTransactions.push_back(randomTrans);
+
+		randomTrans = findUniqueIt(transactionsHash4, transPool);
+		transactionsHash4.insert(make_pair(randomTrans->getTransactionId(), randomTrans));
+		transPack4.push_back(*randomTrans);
+		pickedTransactions.push_back(randomTrans);
+
+		randomTrans = findUniqueIt(transactionsHash5, transPool);
+		transactionsHash5.insert(make_pair(randomTrans->getTransactionId(), randomTrans));
+		transPack5.push_back(*randomTrans);
+		pickedTransactions.push_back(randomTrans);
 	}
 
+	pickedTransactions.sort(compareTransactionsIterators);
+	pickedTransactions.unique();
+	for (auto & iter : pickedTransactions) {
+		transPool.erase(iter);
+	}
+
+	cout << "\t" << transPool.size() << endl << endl;
 	return vector<list<Transaction>> {transPack1, transPack2, transPack3, transPack4, transPack5};
 }
 
@@ -234,4 +293,51 @@ vector<Block>::iterator selectRemainingBlock(vector<vector<Block>::iterator>& us
 		blockIt = select_randomly(blockPool.begin(), blockPool.end());
 	}
 	return blockIt;
+}
+
+void moveUnusedTransToPool(vector<Block>::iterator blockIt, vector<Block>& blockPool, list<Transaction>& transPool) {
+	list<Transaction> remainingTrans{};
+	list<Transaction> tempTrans;
+	list<Transaction> usedTransactionList = blockIt->getTransactions();
+	for (auto it = blockPool.begin(); it != blockPool.end(); it++) {
+		if (it != blockIt) {
+			tempTrans = it->getTransactions();
+
+//			tempTrans.remove_if([&](auto transaction) {
+//				return std::find(usedTransactionList.begin(), usedTransactionList.end(), transaction) != usedTransactionList.end();
+//			});
+//
+			tempTrans.erase(std::remove_if(tempTrans.begin(), tempTrans.end(), [&](auto transaction) {
+				return std::find(usedTransactionList.begin(), usedTransactionList.end(), transaction) != usedTransactionList.end();
+			}), tempTrans.end());
+
+			remainingTrans.insert(remainingTrans.end(), tempTrans.begin(), tempTrans.end());
+		}
+	}
+
+//	for(auto& trans: remainingTrans) {
+//		cout << trans.toString() << endl;
+//	}
+//	cout << endl;
+	remainingTrans.sort(compareTransactions);
+	remainingTrans.unique();
+//	for(auto& trans: remainingTrans) {
+//		cout << trans.toString() << endl;
+//	}
+	transPool.insert(transPool.end(), remainingTrans.begin(), remainingTrans.end());
+}
+
+vector<Block> generateBlockPool(list<Transaction>& transPool, int& nextVersion, int& difficulty, int& sizeOfTransactionsInBlock, Block& lastBlock) {
+	vector<list<Transaction>> transVector = generateFiveTransactionPacks(transPool, sizeOfTransactionsInBlock);
+	auto transIt = transVector.begin();
+	int nonce = 0;
+
+	cout << "Creating blocks" << endl;
+	vector<Block> blockPool;
+	blockPool.emplace_back(lastBlock.getBlockHashPtr(), nextVersion, nonce, difficulty, *transIt++);
+	blockPool.emplace_back(lastBlock.getBlockHashPtr(), nextVersion, nonce, difficulty, *transIt++);
+	blockPool.emplace_back(lastBlock.getBlockHashPtr(), nextVersion, nonce, difficulty, *transIt++);
+	blockPool.emplace_back(lastBlock.getBlockHashPtr(), nextVersion, nonce, difficulty, *transIt++);
+	blockPool.emplace_back(lastBlock.getBlockHashPtr(), nextVersion, nonce, difficulty, *transIt++);
+	return blockPool;
 }
