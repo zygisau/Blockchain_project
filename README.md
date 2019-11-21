@@ -48,6 +48,12 @@ In order to run a program, follow these steps
 
 ## Changelog
 
+### [v0.3](https://github.com/zygisau/Blockchain_project/releases/tag/0.3) - (2019-11-21)  
+
+**Changed**
+ - Updated merkle tree algorithm
+ - Updated README file
+
 ### [v0.2.1](https://github.com/zygisau/Blockchain_project/releases/tag/0.2.1) - (2019-10-27)  
 
 **Changed**
@@ -73,4 +79,4 @@ In order to run a program, follow these steps
  - Blockchain generation and mining scenario
  - Created README file
 
-[version-badge]: https://img.shields.io/badge/version-0.2.1-purple.svg
+[version-badge]: https://img.shields.io/badge/version-0.3-purple.svg
