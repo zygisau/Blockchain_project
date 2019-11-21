@@ -40,6 +40,12 @@ private:
 	string static genMAST(list<Transaction> &transactions) {
 		vector<string> results;
 		string concat;
+		
+		if (transactions.empty()) {
+			return HASH_FUNC("");
+		} else if (transactions.size() == 1) {
+			return transactions.begin()->getTransactionId();
+		}
 
 		list<Transaction>::iterator nextIt;
 		int reverseCount = transactions.size();
